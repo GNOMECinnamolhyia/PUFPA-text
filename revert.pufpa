@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Leer la entrada (frase ofuscada)
+if [ -z "$1" ]; then
+    input=$(cat)
+else
+    input="$*"
+fi
+
+echo "$input" | awk '
+{
+    # 1. Separar mitades (Impares y Pares)
+    len = length($0)
+    mitad = int((len + 1) / 2)
+    impares = substr($0, 1, mitad)
+    pares = substr($0, mitad + 1)
+
+    # 2. Reintercalar caracteres para reconstruir "frase_invertida"
+    frase_inv = ""
+    for (i = 1; i <= mitad; i++) {
+        char_imp = substr(impares, i, 1)
+        char_par = substr(pares, i, 1)
+        
+        # Añadir carácter impar
+        frase_inv = frase_inv char_imp
+        
+        # Añadir carácter par (si existe)
+        if (i <= length(pares)) {
+            frase_inv = frase_inv char_par
+        }
+    }
+
+    # 3. Restaurar vocales originales (cada 3 caracteres)
+    final_text = ""
+    for (i = 1; i <= length(frase_inv); i++) {
+        char = substr(frase_inv, i, 1)
+        if (i % 3 == 0) {
+            if (char == "ë") char = "e"
+            else if (char == "Ë") char = "E"
+            else if (char == "ø") char = "o"
+            else if (char == "Ø") char = "O"
+            else if (char == "â") char = "a"
+            else if (char == "Â") char = "A"
+            else if (char == "ı") char = "i"
+        }
+        final_text = final_text char
+    }
+
+    # 4. Volver a invertir el orden de las palabras
+    split(final_text, palabras, " ")
+    num_palabras = 0
+    for (p in palabras) num_palabras++
+    
+    resultado_final = ""
+    for (i = num_palabras; i >= 1; i--) {
+        resultado_final = resultado_final (i == num_palabras ? "" : " ") palabras[i]
+    }
+
+    # Forzar minúscula inicial (opcional, dependiendo de la entrada original)
+    print resultado_final
+}'

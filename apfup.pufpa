@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+#-----------------------------------
+#| apfupPUFPA — Mezclador de texto |
+#-----------------------------------
+
+
+# Leer entrada
+if [ -z "$1" ]; then
+    input=$(cat)
+else
+    input="$*"
+fi
+
+# Eliminar dobles espacios
+input=$(echo "$input" | sed 's/  */ /g')
+
+echo "$input" | awk '
+{
+    # Reiniciar variables por seguridad
+    frase_invertida = ""
+    impares = ""
+    pares = ""
+
+    # 1. Invertir el orden de las palabras
+    for (i = NF; i >= 1; i--) {
+        frase_invertida = frase_invertida (i == NF ? "" : " ") $i
+    }
+
+    # 2. Procesar carácter por carácter
+    for (i = 1; i <= length(frase_invertida); i++) {
+        char = substr(frase_invertida, i, 1)
+
+        # Convertir solo cada 3 caracteres
+        if (i % 3 == 0) {
+            if (char == "e") char = "ë"
+            else if (char == "E") char = "Ë"
+            else if (char == "o") char = "ø"
+            else if (char == "O") char = "Ø"
+            else if (char == "a") char = "â"
+            else if (char == "A") char = "Â"
+	    else if (char == "i") char = "ı"
+        }
+
+        # Separar en impares y pares
+        if (i % 2 != 0) {
+            impares = impares char
+        } else {
+            pares = pares char
+        }
+    }
+
+    # 3. Forzar primera letra en mayúscula
+    resultado = impares pares
+    primera = substr(resultado, 1, 1)
+    resto = substr(resultado, 2)
+    print toupper(primera) resto
+}'
