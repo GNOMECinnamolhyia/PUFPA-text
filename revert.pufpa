@@ -1,4 +1,7 @@
 #!/bin/bash
+#--------------------------------------------------
+#| revertPUFPA : Revertir el efecto de apfupPUFPA |
+#--------------------------------------------------
 
 # Leer la entrada (frase ofuscada)
 if [ -z "$1" ]; then
